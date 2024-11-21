@@ -1,85 +1,3 @@
-<!--<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        #messages { list-style: none; padding: 0; }
-        #messages li { padding: 10px; background: #f4f4f4; margin-bottom: 5px; border-radius: 5px; }
-        #form { display: flex; margin-top: 10px; }
-        #input { flex: 1; padding: 10px; }
-        #send { background: #007BFF; color: white; border: none; padding: 10px; cursor: pointer; }
-        #username-container { display: flex; justify-content: center; margin-top: 50px; }
-        #username-container input { padding: 10px; width: 200px; }
-        #username-container button { padding: 10px 20px; background: #007BFF; color: white; border: none; cursor: pointer; }
-    </style>
-</head>
-<body>
-    < Username input 
-    <div id="username-container">
-        <input id="username" type="text" placeholder="Enter your name">
-        <button id="join-btn">Join Chat</button>
-    </div>
-    <!- Chat window -
-    <ul id="messages"></ul>
-    <form id="form" style="display: none;">
-        <input id="input" autocomplete="off" placeholder="Type a message..." />
-        <button id="send">Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        const messages = document.getElementById('messages');
-        const joinBtn = document.getElementById('join-btn');
-        const usernameInput = document.getElementById('username');
-        const usernameContainer = document.getElementById('username-container');
-        
-        let username = '';
-        
-        // Handle joining the chat
-        joinBtn.addEventListener('click', () => {
-            username = usernameInput.value.trim();
-            if (username) {
-                // Send the user's name to the server
-                socket.emit('user join', username);
-                usernameContainer.style.display = 'none';
-                form.style.display = 'flex';
-            }
-        });
-        // Handle form submission (send message)
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (input.value) {
-                socket.emit('chat message', input.value);
-                input.value = '';
-            }
-        });
-        // Receive a new chat message
-        socket.on('chat message', (msg) => {
-            const item = document.createElement('li');
-            item.textContent = msg;
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-        });
-        // Receive notifications about users joining or leaving
-        socket.on('user join', (username) => {
-            const item = document.createElement('li');
-            item.textContent = `${username} has joined the chat!`;
-            messages.appendChild(item);
-        });
-        socket.on('user leave', (username) => {
-            const item = document.createElement('li');
-            item.textContent = `${username} has left the chat.`;
-            messages.appendChild(item);
-        });
-    </script>
-</body>
-</html>-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,6 +25,9 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             animation: fadeIn 1s ease-out;
+            height: 80vh; /* Set fixed height */
+            display: flex;
+            flex-direction: column;
         }
 
         #username-container {
@@ -142,10 +63,11 @@
         #messages {
             list-style: none;
             padding: 0;
-            max-height: 400px;
-            overflow-y: auto;
             margin-bottom: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
             animation: fadeIn 2s ease-out;
+            padding-right: 10px;
         }
 
         #messages li {
@@ -174,9 +96,10 @@
             font-size: 16px;
             border: 2px solid #ccc;
             border-radius: 5px;
+            margin-right: 10px; /* Space between input and buttons */
         }
 
-        #send {
+        #send, #file-input-btn {
             background: #007BFF;
             color: white;
             border: none;
@@ -185,14 +108,19 @@
             cursor: pointer;
             font-size: 16px;
             transition: background 0.3s ease;
+            margin-left: 10px; /* Space between send and file button */
         }
 
-        #send:hover {
+        #send:hover, #file-input-btn:hover {
             background: #0056b3;
         }
 
         #file-input {
-            margin-left: 10px;
+            display: none; /* Hide the default file input */
+        }
+
+        #file-input-btn {
+            background: #28a745; /* Green for file button */
         }
 
         @keyframes fadeIn {
@@ -233,6 +161,7 @@
         <ul id="messages"></ul>
         <form id="form" style="display: none;">
             <input id="input" autocomplete="off" placeholder="Type a message..." />
+            <button type="button" id="file-input-btn">Attach File</button>
             <input type="file" id="file-input" accept="image/*,video/*" />
             <button id="send">Send</button>
         </form>
@@ -244,6 +173,7 @@
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const fileInput = document.getElementById('file-input');
+        const fileInputBtn = document.getElementById('file-input-btn');
         const messages = document.getElementById('messages');
         const joinBtn = document.getElementById('join-btn');
         const usernameInput = document.getElementById('username');
@@ -280,6 +210,11 @@
                 reader.readAsDataURL(file);
                 fileInput.value = ''; // Reset the file input
             }
+        });
+
+        // Open file input when 'Attach File' button is clicked
+        fileInputBtn.addEventListener('click', () => {
+            fileInput.click();
         });
 
         // Receive a new chat message or media
