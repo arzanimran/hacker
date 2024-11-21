@@ -3,6 +3,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 
+const cors = require('cors');
+
+app.use(cors({
+  origin: '*', // This will allow all domains to connect (you can restrict it to your specific domain)
+}));
+
 
 const app = express();
 const server = http.createServer(app);
